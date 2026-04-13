@@ -1,0 +1,9 @@
+Sistema gestor de correos que permite enviar, recibir, visualizar,
+ eliminar correos, bandeja de entrada, lista de contactos, filtrado de correos, modificar contactos
+ que tenga pestañas para categorizar los correos por mañana, tarde y noche, insertar diferentes 
+ tipos de archivos en el correo, varias cuentas con sesión activada, borradores de correo,
+identificar spam y utilizar SQLITE, las ventanas no deben cambiar entre si 
+1.- hacer ui
+2.- desarrollar ui
+3.- BD
+4.- lógica del programa
