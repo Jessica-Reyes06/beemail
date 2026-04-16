@@ -1,5 +1,3 @@
-from customtkinter import *
-
 import smtplib #Simple Mail Transfer Protocol
 from customtkinter import *
 import os
@@ -31,8 +29,15 @@ def show_password(password_entry, variable):
 		password_entry.configure(show="")
 	else:
 		password_entry.configure(show="*")
-          
-password= os.environ["EMAIL_PASS_1"]
+
+def obtener_cuentas_configuradas() -> dict[str, str]:
+    cuentas = {}
+    for idx in (1, 2):
+        correo = os.environ.get(f"EMAIL_USER_{idx}", "").strip()
+        password = os.environ.get(f"EMAIL_PASS_{idx}", "")
+        if correo and password:
+            cuentas[correo] = password
+    return cuentas
 
 def enviar_correo(remitente, password, destinatario, asunto, cuerpo, archivos=None):
     msg = EmailMessage()
@@ -58,5 +63,6 @@ def enviar_correo(remitente, password, destinatario, asunto, cuerpo, archivos=No
     except Exception as e:
         print(f"Error al enviar correo: {e}")
         return False
+    
 
 

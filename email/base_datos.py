@@ -24,6 +24,15 @@ def inicializar_bd():
             spam INTEGER DEFAULT 0
         )
     ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS contactos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT,
+            nombre TEXT,
+            UNIQUE(email)
+        )
+    ''')
+
     conn.commit()
     conn.close()
 
@@ -122,4 +131,62 @@ def obtener_por_horario(tipo):
 
     conn.close()
     return resultado
+
+# •••••• FUNCIONES PARA GESTIONAR CONTACTOS ••••••
+def guardar_contacto(email, nombre=""):
+    """Guarda un contacto en la base de datos si no existe ya"""
+    conn = conectar()
+    cursor = conn.cursor()
+    
+    # Verifica si el contacto ya existe
+    cursor.execute('SELECT id FROM contactos WHERE email=?', (email,))
+    if cursor.fetchone():
+        conn.close()
+        return False  # Ya existe
+    
+    cursor.execute('''
+        INSERT INTO contactos (email, nombre)
+        VALUES (?, ?)
+    ''', (email, nombre))
+    conn.commit()
+    conn.close()
+    return True  # Se agregó correctamente
+
+def obtener_contactos():
+    """Obtiene todos los contactos ordenados por nombre"""
+    conn = conectar()
+    cursor = conn.cursor()
+    cursor.execute('SELECT id, email, nombre FROM contactos ORDER BY nombre ASC')
+    contactos = cursor.fetchall()
+    conn.close()
+    return contactos
+
+def obtener_contacto_por_email(email):
+    """Obtiene un contacto específico por email"""
+    conn = conectar()
+    cursor = conn.cursor()
+    cursor.execute('SELECT id, email, nombre FROM contactos WHERE email=?', (email,))
+    contacto = cursor.fetchone()
+    conn.close()
+    return contacto
+
+def actualizar_nombre_contacto(email, nombre):
+    """Actualiza el nombre de un contacto"""
+    conn = conectar()
+    cursor = conn.cursor()
+    cursor.execute('UPDATE contactos SET nombre=? WHERE email=?', (nombre, email))
+    actualizado = cursor.rowcount > 0
+    conn.commit()
+    conn.close()
+    return actualizado
+
+def eliminar_contacto(email):
+    """Elimina un contacto por email"""
+    conn = conectar()
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM contactos WHERE email=?', (email,))
+    eliminado = cursor.rowcount > 0
+    conn.commit()
+    conn.close()
+    return eliminado
 

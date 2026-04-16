@@ -1,13 +1,21 @@
 from CTkMessagebox import CTkMessagebox
-from funciones import enviar_correo
-import os
+from funciones import enviar_correo 
 from customtkinter import *
 from datetime import datetime
 from tkinter import filedialog
 
 class RedactarCorreo:
-    def __init__(self, frame_redactar: CTkFrame):
+    def __init__(self, frame_redactar: CTkScrollableFrame, remitente_activo: str = "", password_activa: str = "", cuentas_configuradas: dict[str, str] | None = None):
         self.frame = frame_redactar
+        self.remitente_activo = remitente_activo
+        self.password_activa = password_activa
+        self.cuentas_configuradas = cuentas_configuradas or {}
+        self.cuentas_disponibles = list(self.cuentas_configuradas.keys())
+        if self.remitente_activo and self.remitente_activo not in self.cuentas_disponibles:
+            self.cuentas_disponibles.append(self.remitente_activo)
+
+        for widget in self.frame.winfo_children():
+            widget.destroy()
 
         self.frame.grid_columnconfigure(0, weight=1)
         self.frame.grid_columnconfigure(1, weight=1)
@@ -39,12 +47,14 @@ class RedactarCorreo:
 
         self.remitente = CTkOptionMenu(
             self.frame,
-            values=["jessica8706m@gmail.com", " otro@example.com"],
+            values=self.cuentas_disponibles or [self.remitente_activo or ""],
             font=CTkFont(family="Arial", size=20),
             width=550,
             fg_color="#fcfcfc",
             text_color="gray")
         self.remitente.grid(row=2, column=1, pady=10, padx=(10, 50), sticky="e")
+        if self.remitente_activo:
+            self.remitente.set(self.remitente_activo)
         self.para = CTkEntry(
             self.frame,
             placeholder_text="Para:",
@@ -104,7 +114,7 @@ class RedactarCorreo:
             text_color="white",
             font=CTkFont(family="Arial", size=16),
             width=100,
-            fg_color="#6e664a",
+            fg_color="#A77E0F",
             command=self.enviar
         )
         self.boton_enviar.grid(row=0, column=2, pady=10, padx=50, sticky="e")
@@ -114,11 +124,13 @@ class RedactarCorreo:
         asunto = self.asunto.get()
         cuerpo = self.cuerpo.get("1.0", "end-1c")
         archivos = self.archivos_adjuntos
-        # Obtener la contraseña del remitente desde variable de entorno 
-        password = os.environ.get("EMAIL_PASS_1", "")
+        password = self.cuentas_configuradas.get(remitente, "") or self.password_activa
         if not remitente or not destinatario:
             CTkMessagebox(title="Error", message="Remitente y destinatario son obligatorios", icon="cancel")
             return 
+        if not password:
+            CTkMessagebox(title="Error", message="No hay contraseña guardada para este remitente", icon="cancel")
+            return
         exito = enviar_correo(remitente, password, destinatario, asunto, cuerpo, archivos)
         if exito:
             CTkMessagebox(title="Éxito", message="Correo enviado correctamente", icon="check")
@@ -138,15 +150,14 @@ class RedactarCorreo:
         # Limpia el frame de adjuntos
         for widget in self.frame_adjuntos.winfo_children():
             widget.destroy()
-        col = 0
+        row = 0
         for idx, archivo in enumerate(self.archivos_adjuntos):
             nombre = archivo.split("/")[-1]
             label = CTkLabel(self.frame_adjuntos, text=nombre, text_color="gray")
-            label.grid(row=0, column=col, sticky="w", padx=(0,2))
-            col += 1
+            label.grid(row=row, column=0, sticky="w", padx=(10,2), pady=5)
             btn = CTkButton(self.frame_adjuntos, text="✖", width=25, fg_color="#f7dada", text_color="#a00", command=lambda i=idx: self.eliminar_adjunto(i))
-            btn.grid(row=0, column=col, padx=(0,8))
-            col += 1
+            btn.grid(row=row, column=1, padx=0, pady=5)
+            row += 1
 ############################################
 
     def eliminar_adjunto(self, idx):
@@ -193,3 +204,9 @@ class RedactarCorreo:
                 self.salir()
         else:
             self.salir()
+
+
+
+
+
+    

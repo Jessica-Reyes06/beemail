@@ -1,6 +1,7 @@
 from customtkinter import *
 from PIL import Image
 from funciones import validar_login, show_password
+#from main import Aplicacion
 from plantilla import VentanaPrincipal
 
 # •••••• VENTANA LOGIN••••••
@@ -45,13 +46,16 @@ mensaje_error = CTkLabel(frame_login, text="", text_color="red", bg_color="#eef3
 mensaje_error.grid(row=6, column=0, padx=20, pady=(0,10))
 
 def intentar_login():
-    if validar_login(email.get(), password.get()) == False:
+    correo = email.get().strip()
+    clave = password.get()
+
+    if validar_login(correo, clave) == False:
         mensaje_error.configure(text="Credenciales incorrectas")
     else:
         mensaje_error.configure(text="")
         login.destroy()
-        ventana = VentanaPrincipal()
-        ventana.mostrar()
+        app = VentanaPrincipal(correo_actual=correo, password=clave)
+        app.mostrar()
 
 boton_login = CTkButton(frame_login, text="Iniciar sesión", font=CTkFont(family="Arial", size=16), width=150, fg_color="#305177", command=intentar_login)
 boton_login.grid(row=5, column=0, padx=20, pady=20)

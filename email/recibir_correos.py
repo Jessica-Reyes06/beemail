@@ -2,7 +2,38 @@ import imaplib
 import email
 from email.header import decode_header
 import os
-from base_datos import guardar_correo
+from base_datos import guardar_correo, guardar_contacto
+import re
+
+def extraer_email(direccion):
+    """Extrae el email de una dirección que puede estar en formato 'Nombre <email@example.com>' o solo 'email@example.com'"""
+    if not direccion:
+        return None
+    
+    # Busca email en formato <email@example.com>
+    match = re.search(r'<([^>]+)>', direccion)
+    if match:
+        return match.group(1).strip()
+    
+    # Si no encuentra entre < >, intenta extraer directamente
+    email_pattern = r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
+    match = re.search(email_pattern, direccion)
+    if match:
+        return match.group()
+    
+    return direccion.strip()  # Si no encuentra patrón, devuelve la dirección completa
+
+def extraer_nombre(direccion):
+    """Extrae el nombre de una dirección de email"""
+    if not direccion:
+        return ""
+    
+    # Si está en formato "Nombre <email@example.com>", extrae el nombre
+    match = re.match(r'^([^<]+)<', direccion)
+    if match:
+        return match.group(1).strip()
+    
+    return ""  # Devuelve vacío si no hay nombre
 
 def recibir_correos(remitente, password, n=10):
     # Conexión a Gmail IMAP
@@ -45,6 +76,11 @@ def recibir_correos(remitente, password, n=10):
                     cuerpo = ''
             fecha = msg.get('Date', '')
             guardar_correo(remitente_, destinatario_, asunto_, cuerpo, fecha)
+            
+            # Extraer email y nombre del remitente para guardarlo como contacto
+            email_remitente = extraer_email(remitente_)
+            if email_remitente:
+                guardar_contacto(email_remitente, "")
 
     # --- BORRADORES ---
     try:
@@ -89,4 +125,9 @@ def recibir_correos(remitente, password, n=10):
                     cuerpo = ''
             fecha = msg.get('Date', '')
             guardar_correo(remitente_, destinatario_, asunto_, cuerpo, fecha, borrador=1)
+            
+            # Extraer email y nombre del remitente para guardarlo como contacto
+            email_remitente = extraer_email(remitente_)
+            if email_remitente:
+                guardar_contacto(email_remitente, "")
     imap.logout()
