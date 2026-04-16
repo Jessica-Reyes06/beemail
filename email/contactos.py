@@ -60,7 +60,7 @@ class VentanaContactos:
             font=self.subtitulo,
             width=80,
             fg_color="#839ab5",
-            command=self.regresar_correos
+            command=NONE
         )
         self.boton_regresar.grid(row=0, column=3, padx=10, pady=5)
 
@@ -80,9 +80,10 @@ class VentanaContactos:
             width=600,
             height=50,
             fg_color="#fdfdfd",
-            text_color="white",
+            text_color="black",
         )
         self.barrita.grid(row=0, column=1, padx=10, pady=(90, 50), sticky="nw")
+        self.barrita.bind("<Return>", self.buscar_en_barra)
 
         self.frame_contactos = CTkFrame(self.ventana, width=450, height=800)
         self.frame_contactos.grid(row=2, column=0, padx=50, pady=(0, 50), sticky="n")
@@ -116,6 +117,85 @@ class VentanaContactos:
         self.contacto_seleccionado_email = None
         self._construir_formulario()
         self.actualizar_lista()
+
+        # •••••• ICONO DE USUARIO ••••••
+        self.usuario = CTkImage(Image.open("imagenes/usuario.png"), size=(100, 100))
+        self.label_usuario = CTkLabel(
+            self.ventana,
+            image=self.usuario,
+            text="",
+            fg_color="transparent",
+            cursor="hand2"
+        )
+        self.label_usuario.grid(row=0, column=1, padx=40, pady=40, sticky="ne")
+        self.label_usuario.bind("<Button-1>", self.seleccionar_icon)
+
+    def _obtener_nombre_usuario(self):
+        if not self.correo_actual:
+            return "Usuario"
+
+        correo = self.correo_actual.strip()
+        if "<" in correo and ">" in correo:
+            nombre = correo.split("<", 1)[0].strip().strip('"')
+            if nombre:
+                return nombre
+            correo = correo.split("<", 1)[1].split(">", 1)[0].strip()
+
+        local = correo.split("@", 1)[0]
+        local = local.replace(".", " ").replace("_", " ").replace("-", " ")
+        local = " ".join(local.split())
+        return local.title() if local else "Usuario"
+
+    def ver_perfil(self):
+        ventana_perfil = CTkToplevel(self.ventana)
+        #Quita el encabezado 
+        ventana_perfil.overrideredirect(True)
+        ventana_perfil.geometry("250x200+1100+200")
+        ventana_perfil.configure(fg_color="#f7f8f0")
+        ventana_perfil.resizable(False, False)
+        ventana_perfil.grid_columnconfigure(0, weight=1)
+
+        CTkButton(
+            ventana_perfil,
+            text="✕",
+            width=20,
+            height=20,
+            fg_color="transparent",
+            hover_color="#f0ff7d",
+            text_color="gray",
+            command=ventana_perfil.destroy,
+        ).grid(row=0, column=0, padx=10, pady=(10, 0), sticky="ne")
+
+        CTkLabel(
+            ventana_perfil,
+            text=self._obtener_nombre_usuario(),
+            font=CTkFont(family="Arial", size=20, weight="bold"),
+            fg_color="transparent",
+        ).grid(row=1, column=0, pady=10)
+
+        CTkLabel(
+            ventana_perfil,
+            text=f"Correo: {self.correo_actual or 'No configurado'}",
+            font=CTkFont(family="Arial", size=12),
+            fg_color="transparent",
+        ).grid(row=2, column=0, pady=10, padx=10)
+
+        CTkButton(
+            ventana_perfil,
+            text="Cambiar cuenta",
+            font=CTkFont(family="Arial", size=14),
+            width=100,
+            fg_color="#A77E0F",
+            command=self.cambiar_cuenta,
+        ).grid(row=3, column=0, pady=30)
+
+    def seleccionar_icon(self, event=None):
+        self.ver_perfil()
+
+    def cambiar_cuenta(self):
+        self.ventana.destroy()
+        ruta_login = os.path.join(os.path.dirname(__file__), "login.py")
+        subprocess.Popen([sys.executable, ruta_login])
 
     def _construir_formulario(self):
         self.encabezado = CTkLabel(
@@ -200,6 +280,16 @@ class VentanaContactos:
         contactos = obtener_contactos()
         self.mostrar_contactos(contactos)
 
+    def buscar_en_barra(self, event=None):
+        texto = self.barrita.get().strip()
+
+        if not texto:
+            contactos = obtener_contactos()
+        else:
+            contactos = buscar_contactos(texto)
+
+        self.mostrar_contactos(contactos)
+
     def mostrar_contactos(self, contactos):
         for widget in self.scroll_contactos.winfo_children():
             widget.destroy()
@@ -221,7 +311,7 @@ class VentanaContactos:
                 continue
 
             contacto_id, email_contacto, _, nombre_mostrar = data
-            texto = f"ID: {contacto_id} | {nombre_mostrar}\n{email_contacto}"
+            texto = f"{nombre_mostrar}\n{email_contacto}"
 
             CTkButton(
                 self.scroll_contactos,
@@ -313,6 +403,5 @@ class VentanaContactos:
         self.ventana.mainloop()
 
 
-if __name__ == "__main__":
-    ventanita = VentanaContactos()
-    ventanita.mostrar()
+ventanita = VentanaContactos()
+ventanita.mostrar()

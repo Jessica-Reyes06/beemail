@@ -1,5 +1,6 @@
 import sqlite3
 from datetime import datetime
+from email.utils import parsedate_to_datetime
 
 DB_NAME = 'correos.db'
 
@@ -56,17 +57,6 @@ def guardar_correo(remitente, destinatario, asunto, cuerpo, fecha=None, leido=0,
     conn.commit()
     conn.close()
 
-def obtener_correos(filtro=None):
-    conn = conectar()
-    cursor = conn.cursor()
-    if filtro:
-        cursor.execute(f'SELECT * FROM correos WHERE {filtro}')
-    else:
-        cursor.execute('SELECT * FROM correos ORDER BY fecha DESC')
-    correos = cursor.fetchall()
-    conn.close()
-    return correos
-
 def eliminar_correo(correo_id):
     conn = conectar()
     cursor = conn.cursor()
@@ -102,7 +92,48 @@ def obtener_correos(filtro=None):
     
     return correos
 
+# Función para buscar correos por texto en remitente, destinatario, asunto o cuerpo
+def buscar_correos(texto):
+    conn = conectar()
+    cursor = conn.cursor()
+
+    termino = f"%{(texto or '').strip()}%"
+    cursor.execute(
+        '''
+        SELECT *
+        FROM correos
+        WHERE remitente LIKE ?
+           OR destinatario LIKE ?
+           OR asunto LIKE ?
+        ORDER BY fecha DESC
+        ''',
+        (termino, termino, termino),
+    )
+
+    correos = cursor.fetchall()
+    conn.close()
+    return correos
+
 # •••••• FILTROS POR HORARIO ••••••
+def _obtener_hora_desde_fecha(fecha):
+    if not fecha:
+        return None
+
+    fecha_str = str(fecha).strip()
+
+    # Formato local guardado por la app: 2026-04-16 14:30:00
+    try:
+        return datetime.strptime(fecha_str[:19], "%Y-%m-%d %H:%M:%S").hour
+    except ValueError:
+        pass
+
+    # Formato típico de cabecera de correo: Thu, 16 Apr 2026 14:30:00 -0500
+    try:
+        return parsedate_to_datetime(fecha_str).hour
+    except (TypeError, ValueError):
+        return None
+
+
 def obtener_por_horario(tipo):
     conn = conectar()
     cursor = conn.cursor()
@@ -115,9 +146,8 @@ def obtener_por_horario(tipo):
     for correo in correos:
         fecha = correo[6]  # columna fecha
 
-        try:
-            hora = datetime.strptime(fecha[:19], "%Y-%m-%d %H:%M:%S").hour
-        except:
+        hora = _obtener_hora_desde_fecha(fecha)
+        if hora is None:
             continue
 
         if tipo == "mañana" and 6 <= hora < 12:
@@ -157,6 +187,27 @@ def obtener_contactos():
     conn = conectar()
     cursor = conn.cursor()
     cursor.execute('SELECT id, email, nombre FROM contactos ORDER BY nombre ASC')
+    contactos = cursor.fetchall()
+    conn.close()
+    return contactos
+
+# Función para buscar contactos por email o nombre
+def buscar_contactos(texto):
+    conn = conectar()
+    cursor = conn.cursor()
+
+    termino = f"%{(texto or '').strip()}%"
+    cursor.execute(
+        '''
+        SELECT id, email, nombre
+        FROM contactos
+        WHERE email LIKE ?
+           OR nombre LIKE ?
+        ORDER BY nombre ASC
+        ''',
+        (termino, termino),
+    )
+
     contactos = cursor.fetchall()
     conn.close()
     return contactos

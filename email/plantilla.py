@@ -102,9 +102,9 @@ class VentanaPrincipal:
 
 
         # •••••• BARRA DE BÚSQUEDA ••••••
-        self.barrita = CTkEntry(self.ventana, placeholder_text="🔍 Buscar en Correos", width=600,
-            height=50, fg_color="#fdfdfd", text_color="white")
+        self.barrita = CTkEntry(self.ventana, placeholder_text="🔍 Buscar en Correos", width=600,height=50, fg_color="#fdfdfd", text_color="black")
         self.barrita.grid(row=0, column=1, padx=10, pady=(90,50), sticky="nw")
+        self.barrita.bind("<Return>", self.buscar_en_barra)
 
         # •••••• FRAME CORREOS ••••••
         self.frame_correos = CTkFrame(self.ventana, width=450, height=800)
@@ -252,6 +252,16 @@ class VentanaPrincipal:
                 filtrados.append(correo)
         return filtrados
 
+    def buscar_en_barra(self, event=None):
+        texto = self.barrita.get().strip()
+
+        if not texto:
+            correos = obtener_correos()
+        else:
+            correos = buscar_correos(texto)
+
+        self.mostrar_correos(self._filtrar_correos_de_cuenta(correos))
+
     def actualizar_bandeja(self):
         if self.correo_actual and self.password:
             recibir_correos(self.correo_actual, self.password, n=10)
@@ -317,5 +327,5 @@ class VentanaPrincipal:
     def mostrar(self):
         self.ventana.mainloop()
 
-"""ventanita=VentanaPrincipal()
-ventanita.mostrar()"""
+ventanita=VentanaPrincipal()
+ventanita.mostrar()
