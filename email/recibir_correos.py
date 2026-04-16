@@ -38,7 +38,7 @@ def extraer_nombre(direccion):
 def recibir_correos(remitente, password, n=10):
     # Conexión a Gmail IMAP
     imap_host = 'imap.gmail.com'
-    imap = imaplib.IMAP4_SSL(imap_host)
+    imap = imaplib.IMAP4_SSL(imap_host) 
     imap.login(remitente, password)
     # --- INBOX ---
     imap.select('inbox')
@@ -47,7 +47,7 @@ def recibir_correos(remitente, password, n=10):
         mail_ids = messages[0].split()
         ultimos = mail_ids[-n:]
         for num in reversed(ultimos):
-            result = imap.fetch(num, '(RFC822)')
+            result = imap.fetch(num, '(RFC822)') #trae el contenido completo del correo en formato estandar
             if result[0] != 'OK':
                 print(f"Error al recuperar el correo {num}")
                 continue
