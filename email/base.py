@@ -1,3 +1,7 @@
+import sys
+
+from utils import resource_path
+
 from customtkinter import *
 from PIL import Image
 from funciones import obtener_cuentas_configuradas

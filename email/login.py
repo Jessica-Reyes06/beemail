@@ -1,6 +1,8 @@
 import sys
 import os
 
+from utils import resource_path
+
 def resource_path(relative_path):
     # Para PyInstaller y desarrollo
     if hasattr(sys, '_MEIPASS'):

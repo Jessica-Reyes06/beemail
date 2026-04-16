@@ -1,4 +1,3 @@
-
 from CTkMessagebox import CTkMessagebox
 from customtkinter import *
 from PIL import Image
@@ -7,6 +6,7 @@ from funciones import obtener_cuentas_configuradas
 from base import VentanaBase
 import os
 import re
+from utils import resource_path
 
 
 class VentanaContactos(VentanaBase):

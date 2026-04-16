@@ -1,4 +1,3 @@
-
 from customtkinter import *
 from CTkMessagebox import CTkMessagebox
 from clases import RedactarCorreo
@@ -10,6 +9,7 @@ from base import VentanaBase
 import os
 import sys
 import subprocess
+from utils import resource_path
 
 
 class VentanaPrincipal(VentanaBase):
