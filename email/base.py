@@ -1,7 +1,4 @@
-import sys
-
 from utils import resource_path
-
 from customtkinter import *
 from PIL import Image
 from funciones import obtener_cuentas_configuradas
@@ -39,7 +36,7 @@ class VentanaBase:
         self.label_logo = CTkLabel(self.ventana, image=self.logo, text="")
         self.label_logo.grid(row=0, column=0, padx=20, pady=(20, 0), sticky="nw")
 
-        # Frame contactos (opcional, puede ser usado o no por la subclase)
+        # Frame contactos 
         self.frame_contactos = CTkFrame(self.ventana, width=450, height=800)
         self.frame_contactos.grid(row=2, column=0, padx=50, pady=(0, 50), sticky="n")
         self.frame_contactos.grid_propagate(False)
@@ -47,7 +44,11 @@ class VentanaBase:
         self.label_fondo_contactos = CTkLabel(self.frame_contactos, image=self.fondo_contactos, text="")
         self.label_fondo_contactos.place(x=0, y=0, relwidth=1, relheight=1)
 
-        # Frame registrar/redactar (opcional, puede ser usado o no por la subclase)
+
+        self.scroll_correos = CTkScrollableFrame(self.frame_contactos, width=400, height=700, fg_color="transparent")
+        self.scroll_correos.place(x=10, y=20)
+
+        # Frame registrar/redactar 
         self.frame_registrar = CTkFrame(self.ventana, width=750, height=800, corner_radius=20)
         self.frame_registrar.grid(row=2, column=1, padx=(0, 50), pady=(0, 50), sticky="n")
         self.frame_registrar.grid_propagate(False)

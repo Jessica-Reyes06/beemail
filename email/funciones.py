@@ -16,13 +16,7 @@ def validar_login(email, password):
     except Exception as e:
         print(f"Error al conectar con el servidor SMTP: {str(e)}")
         return False
-
-def cambiar_modo():
-    if get_appearance_mode() == "Light":
-        set_appearance_mode("dark")
-    else:
-        set_appearance_mode("light")
-
+    
 # Checkbox para mostrar/ocultar contraseña
 def show_password(password_entry, variable):
 	if variable.get():

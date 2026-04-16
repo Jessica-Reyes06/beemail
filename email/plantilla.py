@@ -1,9 +1,7 @@
 from customtkinter import *
-from CTkMessagebox import CTkMessagebox
 from clases import RedactarCorreo
 from PIL import Image
 from base_datos import *
-from funciones import obtener_cuentas_configuradas
 from recibir_correos import recibir_correos
 from base import VentanaBase
 import os
@@ -62,7 +60,7 @@ class VentanaPrincipal(VentanaBase):
             font=self.subtitulo,
             width=80,
             fg_color="#839ab5",
-            command=lambda: RedactarCorreo(self.frame_redactar, self.correo_actual, self.password, self.cuentas_configuradas)
+            command=lambda: RedactarCorreo(self.frame_registrar, self.correo_actual, self.password, self.cuentas_configuradas)
         )
         self.boton_inbox.grid(row=0, column=3, padx=10, pady=5)
 
@@ -81,25 +79,6 @@ class VentanaPrincipal(VentanaBase):
         self.barrita.grid(row=0, column=1, padx=10, pady=(90,50), sticky="nw")
         self.barrita.bind("<Return>", self.buscar_en_barra)
 
-        # •••••• FRAME CORREOS ••••••
-        self.frame_correos = CTkFrame(self.ventana, width=450, height=800)
-        self.frame_correos.grid(row=2, column=0, padx=50, pady=(0, 50), sticky="n")
-        self.frame_correos.grid_propagate(False)
-
-        self.fondo_correos = CTkImage(Image.open(resource_path("imagenes/fondo_correo1.jpeg")), size=(450, 800))
-        self.label_fondo_correos = CTkLabel(self.frame_correos, image=self.fondo_correos, text="")
-        self.label_fondo_correos.place(x=0, y=0, relwidth=1, relheight=1)
-
-        self.scroll_correos = CTkScrollableFrame(self.frame_correos, width=400, height=700, fg_color="transparent")
-        self.scroll_correos.place(x=10, y=20)
-
-        # •••••• FRAME REDACTAR ••••••
-        self.frame_redactar = CTkScrollableFrame(self.ventana, width=750, height=800, corner_radius=20)
-        self.frame_redactar.grid(row=2, column=1, padx=(0, 50), pady=(0, 50), sticky="n")
-
-        self.fondo_redactar = CTkImage(Image.open(resource_path("imagenes/fondo33.jpeg")), size=(750, 800))
-        self.label_fondo_redactar = CTkLabel(self.frame_redactar, image=self.fondo_redactar, text="")
-        self.label_fondo_redactar.place(x=0, y=0, relwidth=1, relheight=1)
 
         # •••••• ICONO DE USUARIO ••••••
         self.usuario = CTkImage(Image.open(resource_path("imagenes/usuario.png")), size=(100, 100))
