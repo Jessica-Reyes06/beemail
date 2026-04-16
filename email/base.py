@@ -22,7 +22,7 @@ class VentanaBase:
         self.ventana.geometry(f"{self.ancho}x{self.alto}")
 
         # Fondo general
-        self.imagen_fondo = CTkImage(Image.open("imagenes/fondo0.jpg"), size=(self.ancho, self.alto))
+        self.imagen_fondo = CTkImage(Image.open(resource_path("imagenes/fondo0.jpg")), size=(self.ancho, self.alto))
         self.fondo_label = CTkLabel(self.ventana, image=self.imagen_fondo, text="")
         self.fondo_label.place(x=0, y=0, relwidth=1, relheight=1)
 
@@ -31,7 +31,7 @@ class VentanaBase:
         self.subtitulo = CTkFont(family="Arial", size=16)
 
         # Logo
-        self.logo = CTkImage(Image.open("imagenes/abejita3.png"), size=(200, 110))
+        self.logo = CTkImage(Image.open(resource_path("imagenes/abejita3.png")), size=(200, 110))
         self.label_logo = CTkLabel(self.ventana, image=self.logo, text="")
         self.label_logo.grid(row=0, column=0, padx=20, pady=(20, 0), sticky="nw")
 
@@ -39,7 +39,7 @@ class VentanaBase:
         self.frame_contactos = CTkFrame(self.ventana, width=450, height=800)
         self.frame_contactos.grid(row=2, column=0, padx=50, pady=(0, 50), sticky="n")
         self.frame_contactos.grid_propagate(False)
-        self.fondo_contactos = CTkImage(Image.open("imagenes/fondo_correo1.jpeg"), size=(450, 800))
+        self.fondo_contactos = CTkImage(Image.open(resource_path("imagenes/fondo_correo1.jpeg")), size=(450, 800))
         self.label_fondo_contactos = CTkLabel(self.frame_contactos, image=self.fondo_contactos, text="")
         self.label_fondo_contactos.place(x=0, y=0, relwidth=1, relheight=1)
 
@@ -47,7 +47,7 @@ class VentanaBase:
         self.frame_registrar = CTkFrame(self.ventana, width=750, height=800, corner_radius=20)
         self.frame_registrar.grid(row=2, column=1, padx=(0, 50), pady=(0, 50), sticky="n")
         self.frame_registrar.grid_propagate(False)
-        self.fondo_registrar = CTkImage(Image.open("imagenes/fondo33.jpeg"), size=(750, 800))
+        self.fondo_registrar = CTkImage(Image.open(resource_path("imagenes/fondo33.jpeg")), size=(750, 800))
         self.label_fondo_registrar = CTkLabel(self.frame_registrar, image=self.fondo_registrar, text="")
         self.label_fondo_registrar.place(x=0, y=0, relwidth=1, relheight=1)
 

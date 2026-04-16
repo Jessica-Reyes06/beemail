@@ -86,7 +86,7 @@ class VentanaPrincipal(VentanaBase):
         self.frame_correos.grid(row=2, column=0, padx=50, pady=(0, 50), sticky="n")
         self.frame_correos.grid_propagate(False)
 
-        self.fondo_correos = CTkImage(Image.open("imagenes/fondo_correo1.jpeg"), size=(450, 800))
+        self.fondo_correos = CTkImage(Image.open(resource_path("imagenes/fondo_correo1.jpeg")), size=(450, 800))
         self.label_fondo_correos = CTkLabel(self.frame_correos, image=self.fondo_correos, text="")
         self.label_fondo_correos.place(x=0, y=0, relwidth=1, relheight=1)
 
@@ -97,12 +97,12 @@ class VentanaPrincipal(VentanaBase):
         self.frame_redactar = CTkScrollableFrame(self.ventana, width=750, height=800, corner_radius=20)
         self.frame_redactar.grid(row=2, column=1, padx=(0, 50), pady=(0, 50), sticky="n")
 
-        self.fondo_redactar = CTkImage(Image.open("imagenes/fondo33.jpeg"), size=(750, 800))
+        self.fondo_redactar = CTkImage(Image.open(resource_path("imagenes/fondo33.jpeg")), size=(750, 800))
         self.label_fondo_redactar = CTkLabel(self.frame_redactar, image=self.fondo_redactar, text="")
         self.label_fondo_redactar.place(x=0, y=0, relwidth=1, relheight=1)
 
         # •••••• ICONO DE USUARIO ••••••
-        self.usuario = CTkImage(Image.open("imagenes/usuario.png"), size=(100, 100))
+        self.usuario = CTkImage(Image.open(resource_path("imagenes/usuario.png")), size=(100, 100))
         self.label_usuario = CTkLabel(
             self.ventana,
             image=self.usuario,

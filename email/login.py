@@ -1,3 +1,12 @@
+import sys
+import os
+
+def resource_path(relative_path):
+    # Para PyInstaller y desarrollo
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
+
 from customtkinter import *
 from PIL import Image
 from funciones import validar_login, show_password
@@ -11,7 +20,7 @@ login.resizable(False, False)
 login.rowconfigure(0, weight=1)
 login.rowconfigure(1, weight=1)
 
-fondo = CTkImage(Image.open("imagenes/login.jpg"), size=(500, 400))
+fondo = CTkImage(Image.open(resource_path("imagenes/login.jpg")), size=(500, 400))
 
 label_fondo = CTkLabel(login, image=fondo, text="")
 label_fondo.grid(row=0, column=0, rowspan=2, sticky="nsew")
@@ -25,7 +34,7 @@ frame_login.grid_rowconfigure(2, weight=1)
 frame_login.grid_rowconfigure(3, weight=1)
 frame_login.grid_rowconfigure(4, weight=1)
 
-logo=CTkImage(Image.open("imagenes/abejita1.png"), size=(220, 80))
+logo=CTkImage(Image.open(resource_path("imagenes/abejita1.png")), size=(220, 80))
 label_logo=CTkLabel(login, image=logo, text="")
 label_logo.grid(row=0, column=0, padx=10)
 #6d8eb9
