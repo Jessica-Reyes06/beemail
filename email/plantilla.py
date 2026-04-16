@@ -9,7 +9,6 @@ import sys
 import subprocess
 from utils import resource_path
 
-
 class VentanaPrincipal(VentanaBase):
     def __init__(self, master=None, correo_actual="", password="", cuentas_configuradas=None, callback_regresar=None):
         super().__init__(titulo="Correos WhiteTower", correo_actual=correo_actual, password=password, cuentas_configuradas=cuentas_configuradas)
@@ -78,7 +77,6 @@ class VentanaPrincipal(VentanaBase):
         self.barrita = CTkEntry(self.ventana, placeholder_text="🔍 Buscar en Correos", width=600, height=50, fg_color="#fdfdfd", text_color="black")
         self.barrita.grid(row=0, column=1, padx=10, pady=(90,50), sticky="nw")
         self.barrita.bind("<Return>", self.buscar_en_barra)
-
 
         # •••••• ICONO DE USUARIO ••••••
         self.usuario = CTkImage(Image.open(resource_path("imagenes/usuario.png")), size=(100, 100))
@@ -249,18 +247,18 @@ class VentanaPrincipal(VentanaBase):
             ).pack(pady=5, padx=10, anchor="w")
 
     def ver_correo(self, correo):
-        for widget in self.frame_redactar.winfo_children():
+        for widget in self.frame_registrar.winfo_children():
             widget.destroy()
 
-        CTkLabel(self.frame_redactar, image=self.fondo_redactar, text="").place(x=0, y=0, relwidth=1, relheight=1)
+        CTkLabel(self.frame_registrar, image=self.fondo_registrar, text="").place(x=0, y=0, relwidth=1, relheight=1)
 
         _, _, remitente, destinatario, asunto, cuerpo, fecha, _, _, _, _ = correo
 
-        CTkLabel(self.frame_redactar, text="Detalle del correo", font=self.titulos, fg_color="transparent").pack(
+        CTkLabel(self.frame_registrar, text="Detalle del correo", font=self.titulos, fg_color="transparent").pack(
             pady=(20, 10), padx=20, anchor="w"
         )
         CTkLabel(
-            self.frame_redactar,
+            self.frame_registrar,
             text=f"De: {remitente}\nPara: {destinatario}\nAsunto: {asunto}\nFecha: {fecha}",
             font=self.subtitulo,
             justify="left",
@@ -270,7 +268,7 @@ class VentanaPrincipal(VentanaBase):
         ).pack(pady=5, padx=20, anchor="w")
 
         cuerpo_texto = CTkTextbox(
-            self.frame_redactar,
+            self.frame_registrar,
             width=680,
             height=560,
             fg_color="transparent",
