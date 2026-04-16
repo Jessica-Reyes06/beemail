@@ -1,3 +1,4 @@
+
 from customtkinter import *
 from CTkMessagebox import CTkMessagebox
 from clases import RedactarCorreo
@@ -5,41 +6,17 @@ from PIL import Image
 from base_datos import *
 from funciones import obtener_cuentas_configuradas
 from recibir_correos import recibir_correos
+from base import VentanaBase
 import os
 import sys
 import subprocess
 
 
-class VentanaPrincipal:
+class VentanaPrincipal(VentanaBase):
     def __init__(self, master=None, correo_actual="", password="", cuentas_configuradas=None, callback_regresar=None):
-        set_appearance_mode("light")
-        deactivate_automatic_dpi_awareness()
-        set_widget_scaling(1.0)
-        set_window_scaling(1.0)
+        super().__init__(titulo="Correos WhiteTower", correo_actual=correo_actual, password=password, cuentas_configuradas=cuentas_configuradas)
         inicializar_bd()
 
-        self.cuentas_configuradas = cuentas_configuradas or obtener_cuentas_configuradas()
-        self.correo_actual = correo_actual or os.environ.get("EMAIL_USER_1", "")
-        self.password = password or self.cuentas_configuradas.get(self.correo_actual, "") or os.environ.get("EMAIL_PASS_1", "")
-
-        self.ventana = CTk()
-        self.ventana.title("Correos WhiteTower")
-        self.ancho = self.ventana.winfo_screenwidth()
-        self.alto = self.ventana.winfo_screenheight()
-        self.ventana.geometry(f"{self.ancho}x{self.alto}")
-
-        self.imagen_fondo = CTkImage(Image.open("imagenes/fondo0.jpg"), size=(self.ancho, self.alto))
-        self.fondo_label = CTkLabel(self.ventana, image=self.imagen_fondo, text="")
-        self.fondo_label.place(x=0, y=0, relwidth=1, relheight=1)
-
-        self.titulos = CTkFont(family="Arial", size=20, weight="bold")
-        self.subtitulo = CTkFont(family="Arial", size=16)
-
-        self.logo = CTkImage(Image.open("imagenes/abejita3.png"), size=(200, 110))
-        self.label_logo = CTkLabel(self.ventana, image=self.logo, text="")
-        self.label_logo.grid(row=0, column=0, padx=20, pady=(20,0), sticky="nw")
-        
-        
         # •••••• FILTROS SUPERIORES ••••••
         self.barra_nav = CTkFrame(self.ventana)
         self.barra_nav.grid(row=0, column=0, padx=(200, 0), pady=(90, 50), sticky="n")
@@ -86,7 +63,6 @@ class VentanaPrincipal:
             width=80,
             fg_color="#839ab5",
             command=lambda: RedactarCorreo(self.frame_redactar, self.correo_actual, self.password, self.cuentas_configuradas)
-
         )
         self.boton_inbox.grid(row=0, column=3, padx=10, pady=5)
 
@@ -96,13 +72,12 @@ class VentanaPrincipal:
             font=self.subtitulo,
             width=80,
             fg_color="#839ab5",
-            command=None
+            command=self.abrir_contactos
         )
         self.boton_contactos.grid(row=0, column=4, padx=10, pady=5)
 
-
         # •••••• BARRA DE BÚSQUEDA ••••••
-        self.barrita = CTkEntry(self.ventana, placeholder_text="🔍 Buscar en Correos", width=600,height=50, fg_color="#fdfdfd", text_color="black")
+        self.barrita = CTkEntry(self.ventana, placeholder_text="🔍 Buscar en Correos", width=600, height=50, fg_color="#fdfdfd", text_color="black")
         self.barrita.grid(row=0, column=1, padx=10, pady=(90,50), sticky="nw")
         self.barrita.bind("<Return>", self.buscar_en_barra)
 
@@ -115,22 +90,16 @@ class VentanaPrincipal:
         self.label_fondo_correos = CTkLabel(self.frame_correos, image=self.fondo_correos, text="")
         self.label_fondo_correos.place(x=0, y=0, relwidth=1, relheight=1)
 
-        # Scroll interno para los correos
         self.scroll_correos = CTkScrollableFrame(self.frame_correos, width=400, height=700, fg_color="transparent")
         self.scroll_correos.place(x=10, y=20)
 
-        #•••••• FRAME REDACTAR ••••••
+        # •••••• FRAME REDACTAR ••••••
         self.frame_redactar = CTkScrollableFrame(self.ventana, width=750, height=800, corner_radius=20)
         self.frame_redactar.grid(row=2, column=1, padx=(0, 50), pady=(0, 50), sticky="n")
 
         self.fondo_redactar = CTkImage(Image.open("imagenes/fondo33.jpeg"), size=(750, 800))
         self.label_fondo_redactar = CTkLabel(self.frame_redactar, image=self.fondo_redactar, text="")
         self.label_fondo_redactar.place(x=0, y=0, relwidth=1, relheight=1)
-
-        self.ventana.grid_columnconfigure(0, weight=1)
-        self.ventana.grid_columnconfigure(1, weight=1)
-        self.ventana.grid_rowconfigure(1, weight=0)
-        self.ventana.grid_rowconfigure(2, weight=1)
 
         # •••••• ICONO DE USUARIO ••••••
         self.usuario = CTkImage(Image.open("imagenes/usuario.png"), size=(100, 100))
@@ -146,6 +115,22 @@ class VentanaPrincipal:
 
         self.actualizar_bandeja()
 
+    # •••••• NAVEGACIÓN ••••••
+    def abrir_contactos(self):
+        self.ventana.destroy()
+        ruta_contactos = os.path.join(os.path.dirname(__file__), "contactos.py")
+        subprocess.Popen([sys.executable, ruta_contactos,
+                         self.correo_actual, self.password])
+
+    def cambiar_cuenta(self):
+        self.ventana.destroy()
+        ruta_login = os.path.join(os.path.dirname(__file__), "login.py")
+        subprocess.Popen([sys.executable, ruta_login])
+
+    def seleccionar_icon(self, event=None):
+        self.ver_perfil()
+
+    # •••••• PERFIL ••••••
     def _obtener_nombre_usuario(self):
         if not self.correo_actual:
             return "Usuario"
@@ -164,7 +149,6 @@ class VentanaPrincipal:
 
     def ver_perfil(self):
         ventana_perfil = CTkToplevel(self.ventana)
-        #Quita el encabezado 
         ventana_perfil.overrideredirect(True)
         ventana_perfil.geometry("250x200+1100+200")
         ventana_perfil.configure(fg_color="#f7f8f0")
@@ -205,14 +189,7 @@ class VentanaPrincipal:
             command=self.cambiar_cuenta,
         ).grid(row=3, column=0, pady=30)
 
-    def seleccionar_icon(self, event=None):
-        self.ver_perfil()
-
-    def cambiar_cuenta(self):
-        self.ventana.destroy()
-        ruta_login = os.path.join(os.path.dirname(__file__), "login.py")
-        subprocess.Popen([sys.executable, ruta_login])
-
+    # •••••• FILTROS ••••••
     def filtrar_correos(self, opcion):
         if opcion == "No leídos":
             correos = obtener_correos("leido=0")
@@ -262,6 +239,7 @@ class VentanaPrincipal:
 
         self.mostrar_correos(self._filtrar_correos_de_cuenta(correos))
 
+    # •••••• BANDEJA ••••••
     def actualizar_bandeja(self):
         if self.correo_actual and self.password:
             recibir_correos(self.correo_actual, self.password, n=10)
@@ -300,7 +278,7 @@ class VentanaPrincipal:
         _, _, remitente, destinatario, asunto, cuerpo, fecha, _, _, _, _ = correo
 
         CTkLabel(self.frame_redactar, text="Detalle del correo", font=self.titulos, fg_color="transparent").pack(
-        pady=(20, 10), padx=20, anchor="w"
+            pady=(20, 10), padx=20, anchor="w"
         )
         CTkLabel(
             self.frame_redactar,
@@ -327,5 +305,9 @@ class VentanaPrincipal:
     def mostrar(self):
         self.ventana.mainloop()
 
-ventanita=VentanaPrincipal()
-ventanita.mostrar()
+
+if __name__ == "__main__":
+    correo = sys.argv[1] if len(sys.argv) > 1 else ""
+    password = sys.argv[2] if len(sys.argv) > 2 else ""
+    app = VentanaPrincipal(correo_actual=correo, password=password)
+    app.mostrar()

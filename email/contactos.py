@@ -1,46 +1,34 @@
+
 from CTkMessagebox import CTkMessagebox
 from customtkinter import *
 from PIL import Image
 from base_datos import *
 from funciones import obtener_cuentas_configuradas
+from base import VentanaBase
 import os
-import sys
-import subprocess
 import re
 
 
-class VentanaContactos:
+class VentanaContactos(VentanaBase):
+    def regresar_correos(self):
+        self.ventana.destroy()
+        try:
+            import sys
+            import subprocess
+            import os
+            ruta_plantilla = os.path.join(os.path.dirname(__file__), "plantilla.py")
+            subprocess.Popen([sys.executable, ruta_plantilla,
+                             self.correo_actual, self.password])
+        except Exception as e:
+            CTkMessagebox(title="Error", message=f"Error: {e}", icon="cancel")
+    
     def __init__(self, correo_actual="", password="", cuentas_configuradas=None):
-        set_appearance_mode("light")
-        deactivate_automatic_dpi_awareness()
-        set_widget_scaling(1.0)
-        set_window_scaling(1.0)
+        super().__init__(titulo="Contactos WhiteTower", correo_actual=correo_actual, password=password, cuentas_configuradas=cuentas_configuradas)
         inicializar_bd()
 
-        self.cuentas_configuradas = cuentas_configuradas or obtener_cuentas_configuradas()
-        self.correo_actual = correo_actual or os.environ.get("EMAIL_USER_1", "")
-        self.password = password or self.cuentas_configuradas.get(self.correo_actual, "") or os.environ.get("EMAIL_PASS_1", "")
-
-        self.ventana = CTk()
-        self.ventana.title("Contactos WhiteTower")
-        self.ancho = self.ventana.winfo_screenwidth()
-        self.alto = self.ventana.winfo_screenheight()
-        self.ventana.geometry(f"{self.ancho}x{self.alto}")
-
-        self.imagen_fondo = CTkImage(Image.open("imagenes/fondo0.jpg"), size=(self.ancho, self.alto))
-        self.fondo_label = CTkLabel(self.ventana, image=self.imagen_fondo, text="")
-        self.fondo_label.place(x=0, y=0, relwidth=1, relheight=1)
-
-        self.titulos = CTkFont(family="Arial", size=20, weight="bold")
-        self.subtitulo = CTkFont(family="Arial", size=16)
-
-        self.logo = CTkImage(Image.open("imagenes/abejita3.png"), size=(200, 110))
-        self.label_logo = CTkLabel(self.ventana, image=self.logo, text="")
-        self.label_logo.grid(row=0, column=0, padx=20, pady=(20, 0), sticky="nw")
-
+        # Barra superior
         self.barra_sup = CTkFrame(self.ventana)
         self.barra_sup.grid(row=0, column=0, padx=(200, 0), pady=(90, 50), sticky="n")
-
         for i in range(5):
             self.barra_sup.grid_columnconfigure(i, weight=1)
 
@@ -60,7 +48,7 @@ class VentanaContactos:
             font=self.subtitulo,
             width=80,
             fg_color="#839ab5",
-            command=NONE
+            command=self.regresar_correos
         )
         self.boton_regresar.grid(row=0, column=3, padx=10, pady=5)
 
@@ -80,18 +68,9 @@ class VentanaContactos:
             width=600,
             height=50,
             fg_color="#fdfdfd",
-            text_color="black",
+            text_color="white",
         )
         self.barrita.grid(row=0, column=1, padx=10, pady=(90, 50), sticky="nw")
-        self.barrita.bind("<Return>", self.buscar_en_barra)
-
-        self.frame_contactos = CTkFrame(self.ventana, width=450, height=800)
-        self.frame_contactos.grid(row=2, column=0, padx=50, pady=(0, 50), sticky="n")
-        self.frame_contactos.grid_propagate(False)
-
-        self.fondo_contactos = CTkImage(Image.open("imagenes/fondo_correo1.jpeg"), size=(450, 800))
-        self.label_fondo_contactos = CTkLabel(self.frame_contactos, image=self.fondo_contactos, text="")
-        self.label_fondo_contactos.place(x=0, y=0, relwidth=1, relheight=1)
 
         self.scroll_contactos = CTkScrollableFrame(
             self.frame_contactos,
@@ -101,101 +80,9 @@ class VentanaContactos:
         )
         self.scroll_contactos.place(x=10, y=20)
 
-        self.frame_registrar = CTkFrame(self.ventana, width=750, height=800, corner_radius=20)
-        self.frame_registrar.grid(row=2, column=1, padx=(0, 50), pady=(0, 50), sticky="n")
-        self.frame_registrar.grid_propagate(False)
-
-        self.fondo_registrar = CTkImage(Image.open("imagenes/fondo33.jpeg"), size=(750, 800))
-        self.label_fondo_registrar = CTkLabel(self.frame_registrar, image=self.fondo_registrar, text="")
-        self.label_fondo_registrar.place(x=0, y=0, relwidth=1, relheight=1)
-
-        self.ventana.grid_columnconfigure(0, weight=1)
-        self.ventana.grid_columnconfigure(1, weight=1)
-        self.ventana.grid_rowconfigure(1, weight=0)
-        self.ventana.grid_rowconfigure(2, weight=1)
-
         self.contacto_seleccionado_email = None
         self._construir_formulario()
         self.actualizar_lista()
-
-        # •••••• ICONO DE USUARIO ••••••
-        self.usuario = CTkImage(Image.open("imagenes/usuario.png"), size=(100, 100))
-        self.label_usuario = CTkLabel(
-            self.ventana,
-            image=self.usuario,
-            text="",
-            fg_color="transparent",
-            cursor="hand2"
-        )
-        self.label_usuario.grid(row=0, column=1, padx=40, pady=40, sticky="ne")
-        self.label_usuario.bind("<Button-1>", self.seleccionar_icon)
-
-    def _obtener_nombre_usuario(self):
-        if not self.correo_actual:
-            return "Usuario"
-
-        correo = self.correo_actual.strip()
-        if "<" in correo and ">" in correo:
-            nombre = correo.split("<", 1)[0].strip().strip('"')
-            if nombre:
-                return nombre
-            correo = correo.split("<", 1)[1].split(">", 1)[0].strip()
-
-        local = correo.split("@", 1)[0]
-        local = local.replace(".", " ").replace("_", " ").replace("-", " ")
-        local = " ".join(local.split())
-        return local.title() if local else "Usuario"
-
-    def ver_perfil(self):
-        ventana_perfil = CTkToplevel(self.ventana)
-        #Quita el encabezado 
-        ventana_perfil.overrideredirect(True)
-        ventana_perfil.geometry("250x200+1100+200")
-        ventana_perfil.configure(fg_color="#f7f8f0")
-        ventana_perfil.resizable(False, False)
-        ventana_perfil.grid_columnconfigure(0, weight=1)
-
-        CTkButton(
-            ventana_perfil,
-            text="✕",
-            width=20,
-            height=20,
-            fg_color="transparent",
-            hover_color="#f0ff7d",
-            text_color="gray",
-            command=ventana_perfil.destroy,
-        ).grid(row=0, column=0, padx=10, pady=(10, 0), sticky="ne")
-
-        CTkLabel(
-            ventana_perfil,
-            text=self._obtener_nombre_usuario(),
-            font=CTkFont(family="Arial", size=20, weight="bold"),
-            fg_color="transparent",
-        ).grid(row=1, column=0, pady=10)
-
-        CTkLabel(
-            ventana_perfil,
-            text=f"Correo: {self.correo_actual or 'No configurado'}",
-            font=CTkFont(family="Arial", size=12),
-            fg_color="transparent",
-        ).grid(row=2, column=0, pady=10, padx=10)
-
-        CTkButton(
-            ventana_perfil,
-            text="Cambiar cuenta",
-            font=CTkFont(family="Arial", size=14),
-            width=100,
-            fg_color="#A77E0F",
-            command=self.cambiar_cuenta,
-        ).grid(row=3, column=0, pady=30)
-
-    def seleccionar_icon(self, event=None):
-        self.ver_perfil()
-
-    def cambiar_cuenta(self):
-        self.ventana.destroy()
-        ruta_login = os.path.join(os.path.dirname(__file__), "login.py")
-        subprocess.Popen([sys.executable, ruta_login])
 
     def _construir_formulario(self):
         self.encabezado = CTkLabel(
@@ -280,16 +167,6 @@ class VentanaContactos:
         contactos = obtener_contactos()
         self.mostrar_contactos(contactos)
 
-    def buscar_en_barra(self, event=None):
-        texto = self.barrita.get().strip()
-
-        if not texto:
-            contactos = obtener_contactos()
-        else:
-            contactos = buscar_contactos(texto)
-
-        self.mostrar_contactos(contactos)
-
     def mostrar_contactos(self, contactos):
         for widget in self.scroll_contactos.winfo_children():
             widget.destroy()
@@ -311,7 +188,7 @@ class VentanaContactos:
                 continue
 
             contacto_id, email_contacto, _, nombre_mostrar = data
-            texto = f"{nombre_mostrar}\n{email_contacto}"
+            texto = f"ID: {contacto_id} | {nombre_mostrar}\n{email_contacto}"
 
             CTkButton(
                 self.scroll_contactos,
@@ -403,5 +280,6 @@ class VentanaContactos:
         self.ventana.mainloop()
 
 
-ventanita = VentanaContactos()
-ventanita.mostrar()
+if __name__ == "__main__":
+    ventanita = VentanaContactos()
+    ventanita.mostrar()

@@ -1,7 +1,6 @@
 from customtkinter import *
 from PIL import Image
 from funciones import validar_login, show_password
-#from main import Aplicacion
 from plantilla import VentanaPrincipal
 
 # •••••• VENTANA LOGIN••••••
