@@ -16,7 +16,7 @@ class VentanaPrincipal(VentanaBase):
 
         # •••••• FILTROS SUPERIORES ••••••
         self.barra_nav = CTkFrame(self.ventana)
-        self.barra_nav.grid(row=0, column=0, padx=(200, 0), pady=(90, 50), sticky="n")
+        self.barra_nav.grid(row=0, column=0, padx=(250, 0), pady=(90, 50), sticky="n")
         for i in range(5):
             self.barra_nav.grid_columnconfigure(i, weight=1)
 
@@ -44,7 +44,7 @@ class VentanaPrincipal(VentanaBase):
 
         self.lista_horario = CTkOptionMenu(
             self.barra_nav,
-            values=["🌓", "mañana", "tarde", "noche"],
+            values=["🌓", "Mañana", "Tarde", "Noche"],
             font=self.subtitulo,
             width=80,
             fg_color="#839ab5",
