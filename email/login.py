@@ -42,7 +42,7 @@ label_logo.grid(row=0, column=0, padx=10)
 #6d8eb9
 bienvenida =CTkLabel(frame_login, text="Welcome!", text_color="black", bg_color= "#eef3f9",font=CTkFont(family="Arial", size=20))
 bienvenida.grid(row=1, column=0, padx=10, pady=5)
-email=CTkEntry(frame_login, placeholder_text="Email",text_color="#305177",  width=200, fg_color="blue", font=CTkFont(family="Arial", size=16))
+email=CTkEntry(frame_login, placeholder_text="Email",text_color="#305177",  width=200, fg_color="white", font=CTkFont(family="Arial", size=16))
 email.grid(row=2, column=0, padx=20, pady=10)
 
 password=CTkEntry(frame_login, placeholder_text="Password", width=200, fg_color="white", font=CTkFont(family="Arial", size=16), show="*", text_color="#305177")
